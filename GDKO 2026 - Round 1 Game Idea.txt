@@ -1,0 +1,11 @@
+You play as a half-human and half-god.
+
+You have the ability to customize the world around you.
+
+Changing the whole planet, adding objects to the world, summoning stand-still allies, striking lightning, shooting out fire, etc.
+
+The level will be one static level.
+
+Each planet has one benefit and one cost (ex: you're 10% faster, but lightning randomly spawns)
+
+Make with JavaScript
