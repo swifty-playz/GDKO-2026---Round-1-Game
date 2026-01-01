@@ -12,6 +12,12 @@ const SCENES = {
 	LOSE: "lose",
 	CONTROLS: "controls"
 };
+const ASSETS = {
+	fireForm: "assets/player/fireForm.png",
+	electricForm: "assets/player/electricForm.png",
+	materialForm: "assets/player/materialForm.png"
+};
+const images = {};
 let pressedKeys = new Set();
 let userInteracted = false;
 let borders = [
@@ -24,6 +30,24 @@ let borders = [
 	{name: "bottom", x: 0, y: canvas.height - 25, width: canvas.width, height: 25}
 ];
 let currentScene = SCENES.GAME;
+let player = {
+	x: 100,
+	y: 100,
+	width: 9,
+	height: 20,
+	speed: 5,
+	health: 100,
+	form: "fireForm",
+	ogX: 100,
+	ogY: 100
+};
+let oldX = player.x;
+let oldY = player.y;
+let assetsLoaded = 0;
+const totalAssets = Object.keys(ASSETS).length;
+let cameraZoom = 2;
+let camX = canvas.width / 2 - player.x * cameraZoom;
+let camY = canvas.height / 2 - player.y * cameraZoom;
 
 // Input listeners (ONCE)
 window.addEventListener('keydown', (e) => {
@@ -75,6 +99,28 @@ function isPointInRect(px, py, rect) {
 	);
 }
 
+function loadAssets(onComplete) {
+	for (let key in ASSETS) {
+		const img = new Image();
+		img.src = ASSETS[key];
+
+		img.onload = () => {
+			assetsLoaded++;
+			if (assetsLoaded === totalAssets) {
+				onComplete();
+			}
+		};
+
+		images[key] = img;
+	}
+}
+
+function playSound(sound) {
+	const s = sound.cloneNode();
+	s.volume = sound.volume;
+	s.play();
+}
+
 function drawGame() {
 	// Drawing the white border around the map
 	ctx.fillStyle = "white";
@@ -90,6 +136,14 @@ function drawGame() {
 	ctx.font = "24px Arial";
 	ctx.fillStyle = "white";
 	ctx.fillText("Game", 100, 100);
+
+	ctx.drawImage(
+		images.fireForm,
+		player.x,
+		player.y,
+		player.width,
+		player.height
+	);
 }
 
 function gameLoop() {
@@ -103,4 +157,7 @@ function gameLoop() {
 	requestAnimationFrame(gameLoop);
 }
 
-gameLoop();
+loadAssets(() => {
+	console.log("All assets loaded!");
+	gameLoop();
+});
