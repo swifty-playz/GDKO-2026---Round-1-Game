@@ -32,3 +32,9 @@ TO DO LIST:
 - Code attack button
 - Add cooldown for attack
 - Code so player can only attack with the ability his form corresponds with
+
+- Code scene states
+- Update code for game to be in game scene
+- Code main menu scene
+- Code lose scene
+- Code controls scene

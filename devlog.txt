@@ -2,3 +2,5 @@
 - Prepared the repository
 - Created the base idea for the task of the game jam
 - Wrote a basic to do list in order of what I want and should do first
+- Added basic code to help me get started, such as a border so I know the edge, the scenes object, and the scene state system
+- Found a good looking and diverse color palette on lospec called lospec500

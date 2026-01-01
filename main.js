@@ -6,8 +6,24 @@ ctx.imageSmoothingEnabled = false; // Makes the images look good, not blurry
 console.log("Game started");
 
 // Variables
+const SCENES = {
+	MENU: "menu",
+	GAME: "game",
+	LOSE: "lose",
+	CONTROLS: "controls"
+};
 let pressedKeys = new Set();
 let userInteracted = false;
+let borders = [
+	{name: "top", x: 0, y: 0, width: canvas.width, height: 25},
+
+	{name: "left", x: 0, y: 0, width: 25, height: canvas.height},
+
+	{name: "right", x: canvas.width - 25, y: 0, width: 25, height: canvas.height},
+
+	{name: "bottom", x: 0, y: canvas.height - 25, width: canvas.width, height: 25}
+];
+let currentScene = SCENES.GAME;
 
 // Input listeners (ONCE)
 window.addEventListener('keydown', (e) => {
@@ -59,13 +75,30 @@ function isPointInRect(px, py, rect) {
 	);
 }
 
-function gameLoop() {
-	// Clears canvas
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+function drawGame() {
+	// Drawing the white border around the map
+	ctx.fillStyle = "white";
+	for (let border of borders) {
+		ctx.fillRect(
+			border.x,
+			border.y,
+			border.width,
+			border.height
+		);
+	}
 
 	ctx.font = "24px Arial";
 	ctx.fillStyle = "white";
 	ctx.fillText("Game", 100, 100);
+}
+
+function gameLoop() {
+	// Clears canvas
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	if (currentScene === SCENES.GAME) {
+		drawGame();
+	}
 
 	requestAnimationFrame(gameLoop);
 }
