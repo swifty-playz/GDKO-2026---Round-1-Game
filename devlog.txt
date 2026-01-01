@@ -1,2 +1,4 @@
 12/31/25
 - Prepared the repository
+- Created the base idea for the task of the game jam
+- Wrote a basic to do list in order of what I want and should do first

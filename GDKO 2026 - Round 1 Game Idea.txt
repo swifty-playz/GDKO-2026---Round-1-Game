@@ -1,11 +1,20 @@
-You play as a half-human and half-god.
+You play as a god.
 
-You have the ability to customize the world around you.
+By changing your body's form, you have the ability to customize the world around you
 
 Changing the whole planet, adding objects to the world, summoning stand-still allies, striking lightning, shooting out fire, etc.
 
 The level will be one static level.
 
-Each planet has one benefit and one cost (ex: you're 10% faster, but lightning randomly spawns)
+Each planet has one benefit and one cost.
+
+Player forms, planets, abilities, and the benefit and cost (when on correlating planet):
+- Lightning form = storm planet = summoning lightning = increase speed by 10% = lightning randomly spawns (chance to damage yourself)
+- Fire form = burning planet = shooting out fire (towards mouse) = increase damage by 10% = health slowly decreases
+- Material form = greenhouse planet =  spawning rocks = increase defense by 10% = decrease speed by 10%
+
+Enemy types
+- Shooter enemy = shoots bullets = low HP = low damage
+- Sword fight enemy = fights with a sword = high HP = high damage
 
 Make with JavaScript

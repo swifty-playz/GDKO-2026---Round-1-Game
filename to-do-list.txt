@@ -1,0 +1,34 @@
+TO DO LIST:
+- Draw player fire form sprite
+- Draw player lightning form sprite
+- Draw player material form sprite
+- Code player movement
+
+- Draw storm planet
+- Draw burning planet
+- Draw greenhouse planet
+
+- Code player camera
+- Code and draw collision barrier from going off planet
+
+- Draw shooter enemy sprite
+- Draw bullet sprite
+- Draw sword fight enemy sprite
+- Draw sword sprite
+
+- Code when player is walking left, that the sprite faces left, and vice versa for when facing right
+- Copy above code for both enemy types
+
+- Draw lightning summon animation
+- Draw fire ball animation
+
+- Code summoning lightning ability where mouse is, coming from the sky
+- Code shooting out fire ball where mouse is, coming from the player
+- Code shooter enemy shooting player
+
+- Code HUD
+- Code planet option buttons
+- Code player form option buttons
+- Code attack button
+- Add cooldown for attack
+- Code so player can only attack with the ability his form corresponds with
