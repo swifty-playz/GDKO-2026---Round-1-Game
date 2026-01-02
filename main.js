@@ -20,8 +20,14 @@ const ASSETS = {
 	fireBall: "assets/attacks/fireBall.png",
 	lightningStrike: "assets/attacks/lightningStrike.png",
 	block: "assets/attacks/block.png",
+	shooterEnemy: "assets/enemy/shooterEnemy.png",
+	swordEnemy: "assets/enemy/swordEnemy.png",
+	gun: "assets/weapons/gun.png",
 	bullet: "assets/attacks/bullet.png",
-	sword: "assets/attacks/sword.png"
+	sword: "assets/weapons/sword.png",
+	burningPlanet: "assets/planets/burningPlanet.png",
+	stormPlanet: "assets/planets/stormPlanet.png",
+	greenhousePlanet: "assets/planets/greenhousePlanet.png"
 };
 const images = {};
 let assetsLoaded = 0;
@@ -39,15 +45,35 @@ let borders = [
 	{name: "bottom", x: 0, y: canvas.height - 25, width: canvas.width, height: 25}
 ];
 let sizeMult = 2;
+let planetMult = 6;
+let currentPlanet = "burningPlanet";
+let planet = {
+	x: canvas.width / 2 - 192,
+	y: canvas.height / 2 - 192,
+	width: 64 * planetMult,
+	height: 64 * planetMult
+};
+let planets = [
+	"burningPlanet", // 0
+	"stormPlanet", // 1
+	"greenhousePlanet" // 2
+];
+let arcBorder = {
+	x: planet.x + 192,
+	y: planet.y + 192,
+	radius: planet.width / 2,
+	startAngle: 0, 
+	endAngle: 2 * Math.PI // 2 * PI radians
+};
 // Mobs
 let player = {
-	x: 100,
-	y: 100,
+	x: canvas.width / 2,
+	y: canvas.height / 2,
 	width: 9 * sizeMult,
 	height: 20 * sizeMult,
 	speed: 5,
 	health: 100,
-	form: "electricForm",
+	form: "fireForm",
 	ogX: 100,
 	ogY: 100
 };
@@ -68,14 +94,15 @@ let fireBall = {
 	y: player.y,
 	width: 16 * sizeMult,
 	height: 16 * sizeMult,
-	speed: 2
+	speed: 2,
+	active: false
 };
 let lightning = {
 	x: player.x,
 	y: player.y,
 	width: 16 * sizeMult,
 	height: 63 * sizeMult,
-	yOffset: 64,
+	yOffset: 63 * sizeMult,
 	duration: 60,
 	active: false
 };
@@ -109,7 +136,7 @@ let attackWithMouse = {
 	y: 0,
 	cooldown: 60,
 	state: "able",
-	attack: attacks[1]
+	attack: attacks[0]
 };
 
 // Input listeners (ONCE)
@@ -224,6 +251,7 @@ function updateAttackCooldown() {
 
 function shootFireBall(mouseX, mouseY) {
 	attackWithMouse.state = "attacking";
+	fireBall.active = true;
     
 	// Set starting position (e.g., at the player)
 	fireBall.x = player.x; 
@@ -254,6 +282,7 @@ function updateFireBall() {
 		fireBall.y < 0 || fireBall.y > canvas.height) {
 			attackWithMouse.state = "cooldown";
 			attackWithMouse.cooldownTimer = attackWithMouse.cooldown;
+			fireBall.active = false;
 	}
 }
 
@@ -357,13 +386,16 @@ function updateGame() {
 		console.log(player.form);
 	}
 	if (pressedKeys.has('e')) {
-		console.log(attackWithMouse.state);
-	}
-	if (pressedKeys.has('r')) {
-		console.log(player.form);
-	}
-	if (pressedKeys.has('t')) {
-		console.log(attackWithMouse.attack);
+		console.log("Switching planet");
+		if (player.form === "fireForm") {
+			currentPlanet = "burningPlanet";
+		}
+		else if (player.form === "electricForm") {
+			currentPlanet = "stormPlanet";
+		}
+		else if (player.form === "materialForm") {
+			currentPlanet = "greenhousePlanet";
+		}
 	}
 
 	// Detection
@@ -377,13 +409,35 @@ function updateGame() {
 		if (rectsOverlap(fireBall, border) && attackWithMouse.state === "attacking") {
 			attackWithMouse.state = "cooldown";
 			attackWithMouse.cooldownTimer = attackWithMouse.cooldown;
+			fireBall.active = false;
 		}
+	}
+	// arcBorder collision detection
+	const playerCenterX = player.x + player.width / 2;
+	const playerCenterY = player.y + player.height / 2;
+	const dx = playerCenterX - arcBorder.x;
+	const dy = playerCenterY - arcBorder.y;
+	const distance = Math.sqrt(dx * dx + dy * dy);
+	if (distance > arcBorder.radius) {
+		player.x = oldX;
+		player.y = oldY;
+	}
+	// Attacks
+	if (rectsOverlap(player, lightning) && lightning.active) {
+		player.health = player.health - 10;
+		
+	}
+	if (rectsOverlap(player, fireBall) && fireBall.active) {
+		player.health = player.health - 10;
+	}
+	if (rectsOverlap(player, block) && block.active) {
+		player.health = player.health - 10;
 	}
 }
 
 function drawGame() {
 	// Drawing the white border around the map
-	ctx.fillStyle = "white";
+	ctx.fillStyle = "gray";
 	for (let border of borders) {
 		ctx.fillRect(
 			border.x,
@@ -393,9 +447,51 @@ function drawGame() {
 		);
 	}
 
+	// Draw planet
+	if (currentPlanet === "burningPlanet") {
+		ctx.drawImage(
+			images.burningPlanet,
+			planet.x,
+			planet.y,
+			planet.width,
+			planet.height
+		);
+	}
+	else if (currentPlanet === "stormPlanet") {
+		ctx.drawImage(
+			images.stormPlanet,
+			planet.x,
+			planet.y,
+			planet.width,
+			planet.height
+		);
+	}
+	else if (currentPlanet === "greenhousePlanet") {
+		ctx.drawImage(
+			images.greenhousePlanet,
+			planet.x,
+			planet.y,
+			planet.width,
+			planet.height
+		);
+	}
+
+	// Draw circle
+	ctx.beginPath();
+	ctx.arc(
+		arcBorder.x,
+		arcBorder.y,
+		arcBorder.radius,
+		arcBorder.startAngle,
+		arcBorder.endAngle
+	);
+	ctx.strokeStyle = "blue";
+	ctx.lineWidth = 10;
+	ctx.stroke();
+
 	ctx.font = "24px Arial";
 	ctx.fillStyle = "white";
-	ctx.fillText("Game", 100, 100);
+	ctx.fillText(player.health, 100, 100);
 
 	// Draws the player
 	if (player.form === forms[0]) {

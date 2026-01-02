@@ -21,3 +21,8 @@
 - Drew sword enemy and shooter enemy sprites
 - Drew gun sprite
 - Drew burningPlanet, stormPlanet, and greenhousePlanet sprites
+- Added the changing planets depending on form (temp system)
+- Added border around the planet
+- Planet now only switches to corresponding planet when player clicks 'e'
+- Text on screen now displays health
+- If player touches any of the attack sprites, health decreases

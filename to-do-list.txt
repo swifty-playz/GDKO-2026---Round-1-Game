@@ -9,7 +9,7 @@ TO DO LIST:
 - Draw greenhouse planet✅
 
 - Code player camera
-- Code and draw collision barrier from going off planet
+- Code and draw collision barrier from going off planet✅
 
 - Draw shooter enemy sprite✅
 - Draw bullet sprite✅
@@ -19,7 +19,7 @@ TO DO LIST:
 - Draw lightning✅
 - Draw fire ball✅
 
-- Code summoning lightning ability where mouse is, coming from the sky
+- Code summoning lightning ability where mouse is, coming from the sky✅
 - Code shooting out fire ball where mouse is, coming from the player✅
 - Code shooter enemy shooting player
 
@@ -27,11 +27,11 @@ TO DO LIST:
 - Code planet option buttons
 - Code player form option buttons
 - Code attack button
-- Add cooldown for attack
-- Code so player can only attack with the ability his form corresponds with
+- Add cooldown for attack✅
+- Code so player can only attack with the ability his form corresponds with✅
 
-- Code scene states
-- Update code for game to be in game scene
+- Code scene states✅
+- Update code for game to be in game scene✅
 - Code main menu scene
 - Code lose scene
 - Code controls scene
