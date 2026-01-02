@@ -16,7 +16,10 @@ let currentScene = SCENES.GAME;
 const ASSETS = {
 	fireForm: "assets/player/fireForm.png",
 	electricForm: "assets/player/electricForm.png",
-	materialForm: "assets/player/materialForm.png"
+	materialForm: "assets/player/materialForm.png",
+	fireBall: "assets/attacks/fireBall.png",
+	lightningStrike: "assets/attacks/lightningStrike.png",
+	block: "assets/attacks/block.png"
 };
 const images = {};
 let assetsLoaded = 0;
@@ -33,12 +36,13 @@ let borders = [
 
 	{name: "bottom", x: 0, y: canvas.height - 25, width: canvas.width, height: 25}
 ];
+let sizeMult = 2;
 // Mobs
 let player = {
 	x: 100,
 	y: 100,
-	width: 9,
-	height: 20,
+	width: 9 * sizeMult,
+	height: 20 * sizeMult,
 	speed: 5,
 	health: 100,
 	form: "electricForm",
@@ -60,15 +64,15 @@ let attacks = [
 let fireBall = {
 	x: player.x,
 	y: player.y,
-	width: 8,
-	height: 8,
+	width: 16 * sizeMult,
+	height: 16 * sizeMult,
 	speed: 1
 };
 let lightning = {
 	x: player.x,
 	y: player.y,
-	width: 8,
-	height: 64,
+	width: 16 * sizeMult,
+	height: 63 * sizeMult,
 	yOffset: 64,
 	duration: 60,
 	active: false
@@ -76,8 +80,8 @@ let lightning = {
 let block = {
 	x: player.x,
 	y: player.y,
-	width: 8,
-	height: 8,
+	width: 16 * sizeMult,
+	height: 8 * sizeMult,
 	duration: 60,
 	active: false
 };
@@ -387,8 +391,8 @@ function drawGame() {
 	// Draw temp fire ball
 	if (attackWithMouse.state === "attacking") {
 		if (attackWithMouse.attack === attacks[0]) {
-			ctx.fillStyle = "red";
-			ctx.fillRect(
+			ctx.drawImage(
+				images.fireBall,
 				fireBall.x,
 				fireBall.y,
 				fireBall.width,
@@ -396,8 +400,8 @@ function drawGame() {
 			);
 		}
 		else if (attackWithMouse.attack === attacks[1]) {
-			ctx.fillStyle = "yellow";
-			ctx.fillRect(
+			ctx.drawImage(
+				images.lightningStrike,
 				lightning.x,
 				lightning.y - lightning.yOffset,
 				lightning.width,
@@ -405,8 +409,8 @@ function drawGame() {
 			);
 		}
 		else if (attackWithMouse.attack === attacks[2]) {
-			ctx.fillStyle = "brown";
-			ctx.fillRect(
+			ctx.drawImage(
+				images.block,
 				block.x,
 				block.y,
 				block.width,

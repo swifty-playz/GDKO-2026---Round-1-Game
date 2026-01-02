@@ -13,3 +13,4 @@
 - After lots of struggle, I got the fireball system to work. Shouldn't of been has hard as it was, but no matter we got it done
 - Got a basic lightning system down
 - Finished lightning system and block/material spawn system for electric form and material form
+- Drew player attack images and added them to the game
