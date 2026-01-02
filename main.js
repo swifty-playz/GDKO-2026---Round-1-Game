@@ -19,7 +19,9 @@ const ASSETS = {
 	materialForm: "assets/player/materialForm.png",
 	fireBall: "assets/attacks/fireBall.png",
 	lightningStrike: "assets/attacks/lightningStrike.png",
-	block: "assets/attacks/block.png"
+	block: "assets/attacks/block.png",
+	bullet: "assets/attacks/bullet.png",
+	sword: "assets/attacks/sword.png"
 };
 const images = {};
 let assetsLoaded = 0;
@@ -66,7 +68,7 @@ let fireBall = {
 	y: player.y,
 	width: 16 * sizeMult,
 	height: 16 * sizeMult,
-	speed: 1
+	speed: 2
 };
 let lightning = {
 	x: player.x,
@@ -82,6 +84,22 @@ let block = {
 	y: player.y,
 	width: 16 * sizeMult,
 	height: 8 * sizeMult,
+	duration: 60,
+	active: false
+};
+let bullet = {
+	x: player.x,
+	y: player.y,
+	width: 8 * sizeMult,
+	height: 5 * sizeMult,
+	duration: 60,
+	active: false
+};
+let sword = {
+	x: player.x,
+	y: player.y,
+	width: 5 * sizeMult,
+	height: 14 * sizeMult,
 	duration: 60,
 	active: false
 };
@@ -380,14 +398,34 @@ function drawGame() {
 	ctx.fillText("Game", 100, 100);
 
 	// Draws the player
-	ctx.drawImage(
-		images.fireForm,
-		player.x,
-		player.y,
-		player.width,
-		player.height
-	);
-
+	if (player.form === forms[0]) {
+		ctx.drawImage(
+			images.fireForm,
+			player.x,
+			player.y,
+			player.width,
+			player.height
+		);
+	}
+	else if (player.form === forms[1]) {
+		ctx.drawImage(
+			images.electricForm,
+			player.x,
+			player.y,
+			player.width,
+			player.height
+		);
+	}
+	else if (player.form === forms[2]) {
+		ctx.drawImage(
+			images.materialForm,
+			player.x,
+			player.y,
+			player.width,
+			player.height
+		);
+	}
+	
 	// Draw temp fire ball
 	if (attackWithMouse.state === "attacking") {
 		if (attackWithMouse.attack === attacks[0]) {

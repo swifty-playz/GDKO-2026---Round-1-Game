@@ -14,3 +14,5 @@
 - Got a basic lightning system down
 - Finished lightning system and block/material spawn system for electric form and material form
 - Drew player attack images and added them to the game
+- Drew enemy bullet and sword sprites, and added base code to the game
+- Now changes the player sprite to the corresponding form
