@@ -1,8 +1,8 @@
 TO DO LIST:
-- Draw player fire form sprite
-- Draw player lightning form sprite
-- Draw player material form sprite
-- Code player movement
+- Draw player fire form sprite✅
+- Draw player lightning form sprite✅
+- Draw player material form sprite✅
+- Code player movement✅
 
 - Draw storm planet
 - Draw burning planet
@@ -16,14 +16,11 @@ TO DO LIST:
 - Draw sword fight enemy sprite
 - Draw sword sprite
 
-- Code when player is walking left, that the sprite faces left, and vice versa for when facing right
-- Copy above code for both enemy types
-
-- Draw lightning summon animation
-- Draw fire ball animation
+- Draw lightning
+- Draw fire ball
 
 - Code summoning lightning ability where mouse is, coming from the sky
-- Code shooting out fire ball where mouse is, coming from the player
+- Code shooting out fire ball where mouse is, coming from the player✅
 - Code shooter enemy shooting player
 
 - Code HUD

@@ -5,3 +5,9 @@
 - Added basic code to help me get started, such as a border so I know the edge, the scenes object, and the scene state system
 - Found a good looking and diverse color palette on lospec called lospec500
 - Drew fireForm, materialForm, and electricForm for the player
+
+1/1/26
+- Implemented loading assets, player object, and base camera variables
+- Am struggling with world position and screen position for the mouse, so removing the camera system. May or may not be brought back later
+- Now prints cords with clicking anywhere on the screen.
+- After lots of struggle, I got the fireball system to work. Shouldn't of been has hard as it was, but no matter we got it done
