@@ -69,6 +69,17 @@ let lightning = {
 	y: player.y,
 	width: 8,
 	height: 64,
+	yOffset: 64,
+	duration: 60,
+	active: false
+};
+let block = {
+	x: player.x,
+	y: player.y,
+	width: 8,
+	height: 8,
+	duration: 60,
+	active: false
 };
 // Buttons
 let attackWithMouse = {
@@ -231,12 +242,17 @@ function checkFormAttack() {
 		console.log("Fireball attack!");
 	}
 	else if (player.form === forms[1]) { // 1
-		summonLightning(attackWithMouse.x, attackWithMouse.y);
 		attackWithMouse.attack = attacks[1];
+		lightning.active = true;
+		lightning.timer = lightning.duration;
+		summonLightning(attackWithMouse.x, attackWithMouse.y);
 		console.log("Electric attack!");
 	}
 	else if (player.form === forms[2]) { // 2
 		attackWithMouse.attack = attacks[2];
+		block.active = true;
+		block.timer = block.duration;
+		spawnBlock(attackWithMouse.x, attackWithMouse.y);
 		console.log("Material attack!");
 	}
 }
@@ -246,6 +262,42 @@ function summonLightning(mouseX, mouseY) {
     
 	lightning.x = mouseX; 
 	lightning.y = mouseY;
+}
+
+function updateLightning() {
+	//console.log(lightning.active);
+	if (!lightning.active) return;
+
+	lightning.timer--;
+	attackWithMouse.state = "attacking";
+	//console.log(lightning.timer);
+
+	if (lightning.timer <= 0) {
+		attackWithMouse.state = "cooldown";
+		attackWithMouse.cooldownTimer = attackWithMouse.cooldown;
+		lightning.active = false;
+		//console.log("we are here tho right?");
+	}
+}
+
+function spawnBlock(mouseX, mouseY) {
+	attackWithMouse.state = "attacking";
+    
+	block.x = mouseX; 
+	block.y = mouseY;
+}
+
+function updateBlock() {
+	if (!block.active) return;
+
+	block.timer--;
+	attackWithMouse.state = "attacking";
+
+	if (block.timer <= 0) {
+		attackWithMouse.state = "cooldown";
+		attackWithMouse.cooldownTimer = attackWithMouse.cooldown;
+		block.active = false;
+	}
 }
 
 function updateGame() {
@@ -269,11 +321,33 @@ function updateGame() {
 		//console.log("Move right");
 		player.x += player.speed;
 	}
+	if (pressedKeys.has('1') && attackWithMouse.state === "able") {
+		player.form = "fireForm";
+		console.log(player.form);
+	}
+	if (pressedKeys.has('2') && attackWithMouse.state === "able") {
+		player.form = "electricForm";
+		lightning.active = false;
+		console.log(player.form);
+	}
+	if (pressedKeys.has('3') && attackWithMouse.state === "able") {
+		player.form = "materialForm";
+		console.log(player.form);
+	}
+	if (pressedKeys.has('e')) {
+		console.log(attackWithMouse.state);
+	}
+	if (pressedKeys.has('r')) {
+		console.log(player.form);
+	}
+	if (pressedKeys.has('t')) {
+		console.log(attackWithMouse.attack);
+	}
 
 	// Detection
 	for (let border of borders) {
 		if (rectsOverlap(player, border)) {
-			player.x = oldX;s
+			player.x = oldX;
 			player.y = oldY;
 		}
 	}
@@ -321,13 +395,22 @@ function drawGame() {
 				fireBall.height
 			);
 		}
-		if (attackWithMouse.attack === attacks[1]) {
+		else if (attackWithMouse.attack === attacks[1]) {
 			ctx.fillStyle = "yellow";
 			ctx.fillRect(
 				lightning.x,
-				lightning.y,
+				lightning.y - lightning.yOffset,
 				lightning.width,
 				lightning.height
+			);
+		}
+		else if (attackWithMouse.attack === attacks[2]) {
+			ctx.fillStyle = "brown";
+			ctx.fillRect(
+				block.x,
+				block.y,
+				block.width,
+				block.height
 			);
 		}
 	}
@@ -338,6 +421,8 @@ function drawGame() {
 
 	updateGame();
 	updateFireBall();
+	updateLightning();
+	updateBlock();
 	updateAttackCooldown();
 }
 
