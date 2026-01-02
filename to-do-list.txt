@@ -4,20 +4,20 @@ TO DO LIST:
 - Draw player material form sprite✅
 - Code player movement✅
 
-- Draw storm planet
-- Draw burning planet
-- Draw greenhouse planet
+- Draw storm planet✅
+- Draw burning planet✅
+- Draw greenhouse planet✅
 
 - Code player camera
 - Code and draw collision barrier from going off planet
 
-- Draw shooter enemy sprite
-- Draw bullet sprite
-- Draw sword fight enemy sprite
-- Draw sword sprite
+- Draw shooter enemy sprite✅
+- Draw bullet sprite✅
+- Draw sword fight enemy sprite✅
+- Draw sword sprite✅
 
-- Draw lightning
-- Draw fire ball
+- Draw lightning✅
+- Draw fire ball✅
 
 - Code summoning lightning ability where mouse is, coming from the sky
 - Code shooting out fire ball where mouse is, coming from the player✅

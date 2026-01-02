@@ -16,3 +16,8 @@
 - Drew player attack images and added them to the game
 - Drew enemy bullet and sword sprites, and added base code to the game
 - Now changes the player sprite to the corresponding form
+
+1/2/26
+- Drew sword enemy and shooter enemy sprites
+- Drew gun sprite
+- Drew burningPlanet, stormPlanet, and greenhousePlanet sprites
