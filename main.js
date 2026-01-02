@@ -41,7 +41,7 @@ let player = {
 	height: 20,
 	speed: 5,
 	health: 100,
-	form: "fireForm",
+	form: "electricForm",
 	ogX: 100,
 	ogY: 100
 };
@@ -64,12 +64,19 @@ let fireBall = {
 	height: 8,
 	speed: 1
 };
+let lightning = {
+	x: player.x,
+	y: player.y,
+	width: 8,
+	height: 64,
+};
 // Buttons
 let attackWithMouse = {
 	x: 0,
 	y: 0,
 	cooldown: 60,
-	state: "able"
+	state: "able",
+	attack: attacks[1]
 };
 
 // Input listeners (ONCE)
@@ -89,7 +96,9 @@ canvas.addEventListener("click", (e) => { // Clicking buttons
 		if (attackWithMouse.state === "able") {
 			attackWithMouse.x = mouseX;
 			attackWithMouse.y = mouseY;
-			shootFireBall(attackWithMouse.x, attackWithMouse.y);
+			// Checks and does the attack corresponding to player form
+			checkFormAttack();
+			//shootFireBall(attackWithMouse.x, attackWithMouse.y);
 		}
 	}
 });
@@ -215,6 +224,29 @@ function updateFireBall() {
 	}
 }
 
+function checkFormAttack() {
+	if (player.form === forms[0]) { // 0
+		shootFireBall(attackWithMouse.x, attackWithMouse.y);
+		attackWithMouse.attack = attacks[0];
+		console.log("Fireball attack!");
+	}
+	else if (player.form === forms[1]) { // 1
+		summonLightning(attackWithMouse.x, attackWithMouse.y);
+		attackWithMouse.attack = attacks[1];
+		console.log("Electric attack!");
+	}
+	else if (player.form === forms[2]) { // 2
+		attackWithMouse.attack = attacks[2];
+		console.log("Material attack!");
+	}
+}
+
+function summonLightning(mouseX, mouseY) {
+	attackWithMouse.state = "attacking";
+    
+	lightning.x = mouseX; 
+	lightning.y = mouseY;
+}
 
 function updateGame() {
 	oldX = player.x;
@@ -224,7 +256,6 @@ function updateGame() {
 	if (pressedKeys.has('w')) {
 		//console.log("Move up");
 		player.y -= player.speed;
-		console.log(attackWithMouse.state);
 	}
 	if (pressedKeys.has('a')) {
 		//console.log("Move left");
@@ -281,13 +312,24 @@ function drawGame() {
 
 	// Draw temp fire ball
 	if (attackWithMouse.state === "attacking") {
-		ctx.fillStyle = "red";
-		ctx.fillRect(
-			fireBall.x,
-			fireBall.y,
-			fireBall.width,
-			fireBall.height
-		);
+		if (attackWithMouse.attack === attacks[0]) {
+			ctx.fillStyle = "red";
+			ctx.fillRect(
+				fireBall.x,
+				fireBall.y,
+				fireBall.width,
+				fireBall.height
+			);
+		}
+		if (attackWithMouse.attack === attacks[1]) {
+			ctx.fillStyle = "yellow";
+			ctx.fillRect(
+				lightning.x,
+				lightning.y,
+				lightning.width,
+				lightning.height
+			);
+		}
 	}
 		
 

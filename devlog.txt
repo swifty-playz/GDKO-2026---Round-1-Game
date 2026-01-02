@@ -11,3 +11,4 @@
 - Am struggling with world position and screen position for the mouse, so removing the camera system. May or may not be brought back later
 - Now prints cords with clicking anywhere on the screen.
 - After lots of struggle, I got the fireball system to work. Shouldn't of been has hard as it was, but no matter we got it done
+- Got a basic lightning system down
