@@ -12,7 +12,7 @@ const SCENES = {
 	LOSE: "lose",
 	CONTROLS: "controls"
 };
-let currentScene = SCENES.GAME;
+let currentScene = SCENES.MENU;
 const ASSETS = {
 	fireForm: "assets/player/fireForm.png",
 	electricForm: "assets/player/electricForm.png",
@@ -74,8 +74,8 @@ let player = {
 	speed: 5,
 	health: 100,
 	form: "fireForm",
-	ogX: 100,
-	ogY: 100
+	ogX: canvas.width / 2,
+	ogY: canvas.height / 2
 };
 let oldX = player.x;
 let oldY = player.y;
@@ -149,8 +149,43 @@ let attackWithMouse = {
 	x: 0,
 	y: 0,
 	cooldown: 60,
-	state: "able",
+	state: "cooldown",
 	attack: attacks[0]
+};
+let startButton = {
+	x: canvas.width / 2 - 100,
+	y: 200,
+	width: 200,
+	height: 60,
+	text: "START"
+};
+let controlsButton = {
+	x: canvas.width / 2 - 100,
+	y: 300,
+	width: 200,
+	height: 60,
+	text: "CONTROLS"
+};
+let loseMenuButton = {
+	x: canvas.width / 2 - 100,
+	y: 330,
+	width: 200,
+	height: 60,
+	text: "Menu"
+};
+let loseReplayButton = {
+	x: canvas.width / 2 - 100,
+	y: 200,
+	width: 200,
+	height: 60,
+	text: "Replay"
+};
+let menuButton = {
+	x: canvas.width / 2 - 100,
+	y: canvas.height - 100,
+	width: 200,
+	height: 60,
+	text: "Menu"
 };
 
 // Input listeners (ONCE)
@@ -166,6 +201,22 @@ canvas.addEventListener("click", (e) => { // Clicking buttons
 	const mouseX = e.clientX - rect.left;
 	const mouseY = e.clientY - rect.top;
 
+	if (currentScene === SCENES.MENU) {
+		if (isPointInRect(mouseX, mouseY, startButton)) {
+			reset();
+			currentScene = SCENES.GAME;
+		}
+	}
+	if (currentScene === SCENES.MENU) {
+		if (isPointInRect(mouseX, mouseY, controlsButton)) {
+			currentScene = SCENES.CONTROLS;
+		}
+	}
+	if (currentScene === SCENES.CONTROLS) {
+		if (isPointInRect(mouseX, mouseY, menuButton)) {
+			currentScene = SCENES.MENU;
+		}
+	}
 	if (currentScene === SCENES.GAME) {
 		if (attackWithMouse.state === "able") {
 			attackWithMouse.x = mouseX;
@@ -173,6 +224,17 @@ canvas.addEventListener("click", (e) => { // Clicking buttons
 			// Checks and does the attack corresponding to player form
 			checkFormAttack();
 			//shootFireBall(attackWithMouse.x, attackWithMouse.y);
+		}
+	}
+	if (currentScene === SCENES.LOSE) {
+		if (isPointInRect(mouseX, mouseY, loseReplayButton)) {
+			reset();
+			currentScene = SCENES.GAME;
+		}
+	}
+	if (currentScene === SCENES.LOSE) {
+		if (isPointInRect(mouseX, mouseY, loseMenuButton)) {
+			currentScene = SCENES.MENU;
 		}
 	}
 });
@@ -674,6 +736,9 @@ function updateGame() {
 		}
 	}
 
+	if (player.health <= 0) {
+		currentScene = SCENES.LOSE;
+	}
 }
 
 function drawGame() {
@@ -808,12 +873,84 @@ function drawGame() {
 	updateEnemySpawner();
 }
 
+function drawMenu() {
+	ctx.fillStyle = "black";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	ctx.fillStyle = "white";
+	ctx.font = "40px Arial";
+	ctx.textAlign = "center";
+	ctx.fillText("GDKO 2026 Round 1 - Game", canvas.width / 2, 120);
+
+	drawButton(startButton);
+	drawButton(controlsButton);
+}
+
+function drawLose() {
+	ctx.fillStyle = "black";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	ctx.fillStyle = "white";
+	ctx.font = "40px Arial";
+	ctx.textAlign = "center";
+	ctx.fillText("LOSER", canvas.width / 2, 120);
+
+	drawButton(loseReplayButton);
+	drawButton(loseMenuButton);
+}
+
+function drawControls() {
+	ctx.fillStyle = "black";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	// Displays "Controls" text
+	ctx.fillStyle = "white";
+	ctx.font = "40px Arial";
+	ctx.textAlign = "center";
+	ctx.fillText("Controls", canvas.width / 2, 120);
+
+	// Displays the list of controls
+	ctx.font = "25px Arial";
+	ctx.fillText("WASD for movement", canvas.width / 2, 250);
+	ctx.fillText("Space for bell pulse ability", canvas.width / 2, 290);
+	ctx.fillText("Explore the map to find the collectibles", canvas.width / 2, 330);
+	ctx.fillText("Beware of the evil elfs trying to stop you", canvas.width / 2, 370);
+
+	drawButton(menuButton);
+}
+
+function reset() {
+	player.x = player.ogX;
+	player.y = player.ogY;
+	player.form = "fireForm";
+	player.health = 100;
+	player.speed = 5;
+	
+	attackWithMouse.cooldownTimer = attackWithMouse.cooldown;
+	attackWithMouse.state = "cooldown";
+	attackWithMouse.attack = attacks[0];
+
+	currentPlanet = "burningPlanet";
+
+	enemies = [];
+	//enemySpawnSystem.timer = enemySpawnSystem.delay;
+}
+
 function gameLoop() {
 	// Clears canvas
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	if (currentScene === SCENES.GAME) {
+	if (currentScene === SCENES.MENU) {
+		drawMenu();
+	}
+	else if (currentScene === SCENES.GAME) {
 		drawGame();
+	}
+	else if (currentScene === SCENES.LOSE) {
+		drawLose();
+	}
+	else if (currentScene === SCENES.CONTROLS) {
+		drawControls();
 	}
 
 	requestAnimationFrame(gameLoop);

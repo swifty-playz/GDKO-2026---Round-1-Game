@@ -31,3 +31,4 @@
 - Corrected damage application
 - Added shooter enemy shooting system
 - Player can now take damage from enemy bullets
+- Did other scene work
