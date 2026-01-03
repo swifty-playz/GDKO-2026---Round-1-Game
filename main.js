@@ -75,7 +75,10 @@ let player = {
 	health: 100,
 	form: "fireForm",
 	ogX: canvas.width / 2,
-	ogY: canvas.height / 2
+	ogY: canvas.height / 2,
+	score: 0,
+	defense: 2,
+	dmgAdd: 5
 };
 let oldX = player.x;
 let oldY = player.y;
@@ -96,7 +99,7 @@ let fireBall = {
 	height: 16 * sizeMult,
 	speed: 2,
 	active: false,
-	damage: 30
+	damage: 30 + player.dmgAdd
 };
 let lightning = {
 	x: player.x,
@@ -106,7 +109,7 @@ let lightning = {
 	yOffset: 63 * sizeMult,
 	duration: 60,
 	active: false,
-	damage: 40
+	damage: 40 + player.dmgAdd
 };
 let block = {
 	x: player.x,
@@ -115,12 +118,12 @@ let block = {
 	height: 8 * sizeMult,
 	duration: 60,
 	active: false,
-	damage: 20
+	damage: 20 + player.dmgAdd
 };
 let enemies = [];
 let enemySpawnSystem = {
 	timer: 0,
-	delay: 360 // frames (3 seconds at 60fps)
+	delay: 360
 };
 let gun = {
 	x: 0,
@@ -182,7 +185,7 @@ let loseReplayButton = {
 };
 let menuButton = {
 	x: canvas.width / 2 - 100,
-	y: canvas.height - 100,
+	y: canvas.height - 125,
 	width: 200,
 	height: 60,
 	text: "Menu"
@@ -252,7 +255,7 @@ function rectsOverlap(a, b) { // AABB collision detection (Axis-Aligned Bounding
 }
 
 function drawButton(button) {
-	ctx.fillStyle = "green";
+	ctx.fillStyle = "black";
 	ctx.fillRect(button.x, button.y, button.width, button.height);
 
 	ctx.fillStyle = "white";
@@ -453,7 +456,8 @@ function createEnemy(type, x, y) {
 }
 
 function spawnEnemies() {
-	const amount = Math.floor(Math.random() * 2) + 1; // 1–2 enemies
+	const scaling = Math.floor(player.score / 50); // every 50 points adds 1 enemy possible
+	const amount = Math.floor(Math.random() * scaling) + 1; 
 
 	for (let i = 0; i < amount; i++) {
 		const type = Math.random() < 0.5 ? "shooter" : "sword";
@@ -471,6 +475,7 @@ function updateEnemySpawner() {
 	if (enemySpawnSystem.timer >= enemySpawnSystem.delay) {
 		enemySpawnSystem.timer = 0;
 		spawnEnemies();
+		player.score = player.score + 10;
 	}
 }
 
@@ -603,15 +608,18 @@ function updateGame() {
 	}
 	if (pressedKeys.has('1') && attackWithMouse.state === "able") {
 		player.form = "fireForm";
+		attackWithMouse.attack = attacks[0];
 		console.log(player.form);
 	}
 	if (pressedKeys.has('2') && attackWithMouse.state === "able") {
 		player.form = "electricForm";
 		lightning.active = false;
+		attackWithMouse.attack = attacks[1];
 		console.log(player.form);
 	}
 	if (pressedKeys.has('3') && attackWithMouse.state === "able") {
 		player.form = "materialForm";
+		attackWithMouse.attack = attacks[2];
 		console.log(player.form);
 	}
 	if (pressedKeys.has('e')) {
@@ -685,6 +693,8 @@ function updateGame() {
 		) {
 			enemy.health -= fireBall.damage;
 			fireBall.hitEnemies.add(enemy);
+			player.score = player.score + 5;
+			player.health = player.health + 3;
 		}
 	}
 	for (let enemy of enemies) {
@@ -695,6 +705,8 @@ function updateGame() {
 		) {
 			enemy.health -= lightning.damage;
 			lightning.hitEnemies.add(enemy);
+			player.score = player.score + 10;
+			player.health = player.health + 3;
 		}
 	}
 	for (let enemy of enemies) {
@@ -705,13 +717,17 @@ function updateGame() {
 		) {
 			enemy.health -= block.damage;
 			block.hitEnemies.add(enemy);
+			player.score = player.score + 15;
+			player.health = player.health + 3;
 		}
 	}
 
 	for (let enemy of enemies) {
 		if (rectsOverlap(player, enemy)) {
 			enemy.health = 0;
-			player.health = player.health - 10;
+			player.health = player.health - (enemy.damage - player.defense);
+			player.score = player.score + 1;
+			player.health = player.health + 3;
 		}
 	}
 
@@ -728,7 +744,7 @@ function updateGame() {
 		};
 
 		if (rectsOverlap(player, enemyBulletRect)) {
-			player.health -= enemy.damage;
+			player.health -= (enemy.damage - player.defense);
 
 			// deactivate bullet so it doesn't hit again
 			enemy.bulletActive = false;
@@ -762,6 +778,14 @@ function drawGame() {
 			planet.width,
 			planet.height
 		);
+
+		// Reset previous changes
+		player.speed = 5;
+
+		// Benefit = inc dmg by 10%
+		player.dmgAdd = 5
+		// Cost = removes defense
+		player.defense = 0;
 	}
 	else if (currentPlanet === "stormPlanet") {
 		ctx.drawImage(
@@ -771,6 +795,14 @@ function drawGame() {
 			planet.width,
 			planet.height
 		);
+
+		// Reset previous changes
+		player.dmgAdd = 0;
+
+		// Benefit = inc speed
+		player.speed = 7;
+		// Cost = dec defense
+		player.defense = 1;
 	}
 	else if (currentPlanet === "greenhousePlanet") {
 		ctx.drawImage(
@@ -780,6 +812,14 @@ function drawGame() {
 			planet.width,
 			planet.height
 		);
+
+		// Reset previous changes
+		player.dmgAdd = 0;
+
+		// Benefit = inc def
+		player.defense = 4;
+		// Cost = dec speed
+		player.speed = 3;
 	}
 
 	// Draw circle
@@ -791,13 +831,9 @@ function drawGame() {
 		arcBorder.startAngle,
 		arcBorder.endAngle
 	);
-	ctx.strokeStyle = "blue";
-	ctx.lineWidth = 10;
+	ctx.strokeStyle = "black";
+	ctx.lineWidth = 5;
 	ctx.stroke();
-
-	ctx.font = "24px Arial";
-	ctx.fillStyle = "white";
-	ctx.fillText(player.health, 100, 100);
 
 	// Draws the player
 	if (player.form === forms[0]) {
@@ -862,8 +898,8 @@ function drawGame() {
 	updateEnemies();
 	drawEnemies();
 
-	// Draws the HUD (coming soon...)
-	//drawHUD();
+	// Draws the HUD
+	drawHUD();
 
 	updateGame();
 	updateFireBall();
@@ -876,6 +912,14 @@ function drawGame() {
 function drawMenu() {
 	ctx.fillStyle = "black";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	ctx.drawImage(
+		images.greenhousePlanet,
+		planet.x,
+		planet.y,
+		planet.width,
+		planet.height
+	);
 
 	ctx.fillStyle = "white";
 	ctx.font = "40px Arial";
@@ -890,10 +934,19 @@ function drawLose() {
 	ctx.fillStyle = "black";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+	ctx.drawImage(
+		images.burningPlanet,
+		planet.x,
+		planet.y,
+		planet.width,
+		planet.height
+	);
+
 	ctx.fillStyle = "white";
 	ctx.font = "40px Arial";
 	ctx.textAlign = "center";
-	ctx.fillText("LOSER", canvas.width / 2, 120);
+	ctx.fillText("You Lose!", canvas.width / 2, 120);
+	ctx.fillText(`Score: ${player.score}`, canvas.width / 2, 170);
 
 	drawButton(loseReplayButton);
 	drawButton(loseMenuButton);
@@ -903,6 +956,14 @@ function drawControls() {
 	ctx.fillStyle = "black";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+	ctx.drawImage(
+		images.stormPlanet,
+		planet.x,
+		planet.y,
+		planet.width,
+		planet.height
+	);
+
 	// Displays "Controls" text
 	ctx.fillStyle = "white";
 	ctx.font = "40px Arial";
@@ -911,12 +972,37 @@ function drawControls() {
 
 	// Displays the list of controls
 	ctx.font = "25px Arial";
-	ctx.fillText("WASD for movement", canvas.width / 2, 250);
-	ctx.fillText("Space for bell pulse ability", canvas.width / 2, 290);
-	ctx.fillText("Explore the map to find the collectibles", canvas.width / 2, 330);
-	ctx.fillText("Beware of the evil elfs trying to stop you", canvas.width / 2, 370);
+	ctx.fillText("WASD for movement", canvas.width / 2, canvas.height / 2 - 75);
+	ctx.fillText("Click 1 for fire form to shoot fireball", canvas.width / 2, canvas.height / 2 - 50);
+	ctx.fillText("Click 2 for electric form to summon lightning", canvas.width / 2, canvas.height / 2 - 25);
+	ctx.fillText("Click 3 for material form to spawn a block", canvas.width / 2, canvas.height / 2);
+	ctx.fillText("Click e to change planet to corresponding player form", canvas.width / 2, canvas.height / 2 + 25);
+	ctx.fillText("Kill enemies to increase score and HP", canvas.width / 2, canvas.height / 2 + 50);
+	ctx.fillText("Go for highest high score!", canvas.width / 2, canvas.height / 2 + 75);
 
 	drawButton(menuButton);
+}
+
+function drawHUD() {
+	ctx.fillStyle = "white";
+	ctx.font = "20px Arial";
+	ctx.textAlign = "left";
+
+	ctx.fillText(`Health: ${player.health}`, 25, 15);
+	ctx.fillText(`Score: ${player.score}`, canvas.width / 1.25, 15);
+
+	ctx.fillText(`Form: ${player.form}`, 25, canvas.height - 15);
+	ctx.fillText(`Attack: ${attackWithMouse.attack}`, canvas.width / 1.3, canvas.height - 15);
+
+	ctx.textAlign = "center";
+	ctx.fillText(currentPlanet, canvas.width / 2, canvas.height - 40);
+
+	if (attackWithMouse.state === "able") {
+		ctx.fillText("Can attack", canvas.width / 2, 15);
+	}
+	else {
+		ctx.fillText("Can't attack", canvas.width / 2, 15);
+	}
 }
 
 function reset() {
@@ -925,6 +1011,8 @@ function reset() {
 	player.form = "fireForm";
 	player.health = 100;
 	player.speed = 5;
+	player.score = 0;
+	player.defense = 5;
 	
 	attackWithMouse.cooldownTimer = attackWithMouse.cooldown;
 	attackWithMouse.state = "cooldown";

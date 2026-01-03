@@ -32,3 +32,9 @@
 - Added shooter enemy shooting system
 - Player can now take damage from enemy bullets
 - Did other scene work
+- Created HUD
+- Eliminating enemies now increases HP
+- Increases score by eliminating enemies, as well as surviving each spawn wave
+- Added defense variable to player, and now calculates the defense value when player is attacked by touching the enemy and the enemy bullet
+- Added the cost and benefits depending on planet
+- Every 50 points, increase possible amount of enemies that can spawn by 1
