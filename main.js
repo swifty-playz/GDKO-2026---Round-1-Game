@@ -95,7 +95,8 @@ let fireBall = {
 	width: 16 * sizeMult,
 	height: 16 * sizeMult,
 	speed: 2,
-	active: false
+	active: false,
+	damage: 30
 };
 let lightning = {
 	x: player.x,
@@ -104,7 +105,8 @@ let lightning = {
 	height: 63 * sizeMult,
 	yOffset: 63 * sizeMult,
 	duration: 60,
-	active: false
+	active: false,
+	damage: 40
 };
 let block = {
 	x: player.x,
@@ -112,7 +114,13 @@ let block = {
 	width: 16 * sizeMult,
 	height: 8 * sizeMult,
 	duration: 60,
-	active: false
+	active: false,
+	damage: 20
+};
+let enemies = [];
+let enemySpawnSystem = {
+	timer: 0,
+	delay: 360 // frames (3 seconds at 60fps)
 };
 let bullet = {
 	x: player.x,
@@ -252,6 +260,7 @@ function updateAttackCooldown() {
 function shootFireBall(mouseX, mouseY) {
 	attackWithMouse.state = "attacking";
 	fireBall.active = true;
+	fireBall.hitEnemies = new Set();
     
 	// Set starting position (e.g., at the player)
 	fireBall.x = player.x; 
@@ -310,6 +319,7 @@ function checkFormAttack() {
 
 function summonLightning(mouseX, mouseY) {
 	attackWithMouse.state = "attacking";
+	lightning.hitEnemies = new Set();
     
 	lightning.x = mouseX; 
 	lightning.y = mouseY;
@@ -333,6 +343,7 @@ function updateLightning() {
 
 function spawnBlock(mouseX, mouseY) {
 	attackWithMouse.state = "attacking";
+	block.hitEnemies = new Set();
     
 	block.x = mouseX; 
 	block.y = mouseY;
@@ -348,6 +359,71 @@ function updateBlock() {
 		attackWithMouse.state = "cooldown";
 		attackWithMouse.cooldownTimer = attackWithMouse.cooldown;
 		block.active = false;
+	}
+}
+
+function createEnemy(type, x, y) {
+	return {
+		type: type,
+
+		x: x,
+		y: y,
+		width: 9 * sizeMult,
+		height: 20 * sizeMult,
+
+		speed: type === "shooter" ? 1 : 1,
+		health: type === "shooter" ? 20 : 60,
+		damage: type === "shooter" ? 5 : 15,
+
+		state: "idle"
+	};
+}
+
+function spawnEnemies() {
+	const amount = Math.floor(Math.random() * 2) + 1; // 1–2 enemies
+
+	for (let i = 0; i < amount; i++) {
+		const type = Math.random() < 0.5 ? "shooter" : "sword";
+
+		const x = Math.random() * (canvas.width - 50) + 25;
+		const y = Math.random() * (canvas.height - 50) + 25;
+
+		enemies.push(createEnemy(type, x, y));
+	}
+}
+
+function updateEnemySpawner() {
+	enemySpawnSystem.timer++;
+
+	if (enemySpawnSystem.timer >= enemySpawnSystem.delay) {
+		enemySpawnSystem.timer = 0;
+		spawnEnemies();
+	}
+}
+
+function updateEnemies() {
+	enemies = enemies.filter(enemy => enemy.health > 0);
+
+	for (let enemy of enemies) {
+		// Move toward player (simple AI)
+		let dx = player.x - enemy.x;
+		let dy = player.y - enemy.y;
+		let dist = Math.sqrt(dx * dx + dy * dy);
+
+		if (dist !== 0) {
+			enemy.x += (dx / dist) * enemy.speed;
+			enemy.y += (dy / dist) * enemy.speed;
+		}
+	}
+}
+
+function drawEnemies() {
+	for (let enemy of enemies) {
+		if (enemy.type === "shooter") {
+			ctx.drawImage(images.shooterEnemy, enemy.x, enemy.y, enemy.width, enemy.height);
+		} else {
+			ctx.drawImage(images.swordEnemy, enemy.x, enemy.y, enemy.width, enemy.height);
+		}
 	}
 }
 
@@ -423,15 +499,67 @@ function updateGame() {
 		player.y = oldY;
 	}
 	// Attacks
-	if (rectsOverlap(player, lightning) && lightning.active) {
-		player.health = player.health - 10;
-		
+	if (
+		fireBall.active &&
+		rectsOverlap(fireBall, player) &&
+		!fireBall.hitEnemies.has(player)
+	) {
+		player.health -= (fireBall.damage / 10);
+		fireBall.hitEnemies.add(player);
 	}
-	if (rectsOverlap(player, fireBall) && fireBall.active) {
-		player.health = player.health - 10;
+	if (
+		lightning.active &&
+		rectsOverlap(lightning, player) &&
+		!lightning.hitEnemies.has(player)
+	) {
+		player.health -= (lightning.damage / 10);
+		lightning.hitEnemies.add(player);
 	}
-	if (rectsOverlap(player, block) && block.active) {
-		player.health = player.health - 10;
+	if (
+		block.active &&
+		rectsOverlap(block, player) &&
+		!block.hitEnemies.has(player)
+	) {
+		player.health -= (block.damage / 10);
+		block.hitEnemies.add(player);
+	}
+
+	for (let enemy of enemies) {
+		if (
+			fireBall.active &&
+			rectsOverlap(fireBall, enemy) &&
+			!fireBall.hitEnemies.has(enemy)
+		) {
+			enemy.health -= fireBall.damage;
+			fireBall.hitEnemies.add(enemy);
+		}
+	}
+	for (let enemy of enemies) {
+		if (
+			lightning.active &&
+			rectsOverlap(lightning, enemy) &&
+			!lightning.hitEnemies.has(enemy)
+		) {
+			enemy.health -= lightning.damage;
+			lightning.hitEnemies.add(enemy);
+		}
+	}
+	for (let enemy of enemies) {
+		if (
+			block.active &&
+			rectsOverlap(block, enemy) &&
+			!block.hitEnemies.has(enemy)
+		) {
+			enemy.health -= block.damage;
+			block.hitEnemies.add(enemy);
+		}
+	}
+
+	for (let enemy of enemies) {
+		if (rectsOverlap(player, enemy)) {
+			enemy.health = 0;
+			player.health = player.health - 10;
+		}
 	}
 }
 
@@ -552,7 +680,9 @@ function drawGame() {
 			);
 		}
 	}
-		
+	
+	updateEnemies();
+	drawEnemies();
 
 	// Draws the HUD (coming soon...)
 	//drawHUD();
@@ -562,6 +692,7 @@ function drawGame() {
 	updateLightning();
 	updateBlock();
 	updateAttackCooldown();
+	updateEnemySpawner();
 }
 
 function gameLoop() {

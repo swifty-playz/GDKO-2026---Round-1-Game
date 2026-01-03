@@ -26,3 +26,6 @@
 - Planet now only switches to corresponding planet when player clicks 'e'
 - Text on screen now displays health
 - If player touches any of the attack sprites, health decreases
+- Can now spawn a bunch of enemies
+- Enemies take damage and can die
+- Corrected damage application
