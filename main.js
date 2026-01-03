@@ -185,7 +185,7 @@ let loseReplayButton = {
 };
 let menuButton = {
 	x: canvas.width / 2 - 100,
-	y: canvas.height - 125,
+	y: canvas.height - 120,
 	width: 200,
 	height: 60,
 	text: "Menu"
@@ -924,7 +924,7 @@ function drawMenu() {
 	ctx.fillStyle = "white";
 	ctx.font = "40px Arial";
 	ctx.textAlign = "center";
-	ctx.fillText("GDKO 2026 Round 1 - Game", canvas.width / 2, 120);
+	ctx.fillText("Elemental Shift", canvas.width / 2, 130);
 
 	drawButton(startButton);
 	drawButton(controlsButton);
@@ -977,8 +977,9 @@ function drawControls() {
 	ctx.fillText("Click 2 for electric form to summon lightning", canvas.width / 2, canvas.height / 2 - 25);
 	ctx.fillText("Click 3 for material form to spawn a block", canvas.width / 2, canvas.height / 2);
 	ctx.fillText("Click e to change planet to corresponding player form", canvas.width / 2, canvas.height / 2 + 25);
-	ctx.fillText("Kill enemies to increase score and HP", canvas.width / 2, canvas.height / 2 + 50);
-	ctx.fillText("Go for highest high score!", canvas.width / 2, canvas.height / 2 + 75);
+	ctx.fillText("Click anywhere on the screen with your mouse to attack", canvas.width / 2, canvas.height / 2 + 50);
+	ctx.fillText("Kill enemies to increase score and HP", canvas.width / 2, canvas.height / 2 + 75);
+	ctx.fillText("Go for highest high score!", canvas.width / 2, canvas.height / 2 + 100);
 
 	drawButton(menuButton);
 }
