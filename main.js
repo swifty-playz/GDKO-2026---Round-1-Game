@@ -122,21 +122,27 @@ let enemySpawnSystem = {
 	timer: 0,
 	delay: 360 // frames (3 seconds at 60fps)
 };
+let gun = {
+	x: 0,
+	y: 0,
+	width: 8 * sizeMult,
+	height: 4 * sizeMult,
+	state: "able",
+	active: false,
+	cooldown: 90
+};
 let bullet = {
 	x: player.x,
 	y: player.y,
-	width: 8 * sizeMult,
-	height: 5 * sizeMult,
-	duration: 60,
-	active: false
+	width: 8,
+	height: 5,
+	speed: 3
 };
 let sword = {
-	x: player.x,
-	y: player.y,
+	x: 0,
+	y: 0,
 	width: 5 * sizeMult,
 	height: 14 * sizeMult,
-	duration: 60,
-	active: false
 };
 // Buttons
 let attackWithMouse = {
@@ -374,6 +380,11 @@ function createEnemy(type, x, y) {
 		speed: type === "shooter" ? 1 : 1,
 		health: type === "shooter" ? 20 : 60,
 		damage: type === "shooter" ? 5 : 15,
+		angle: 0,
+		bulletX: x,
+		bulletY: y,
+		bulletAngle: 0,
+		bulletActive: false,
 
 		state: "idle"
 	};
@@ -414,6 +425,19 @@ function updateEnemies() {
 			enemy.x += (dx / dist) * enemy.speed;
 			enemy.y += (dy / dist) * enemy.speed;
 		}
+
+		// Calculate and store the angle in radians
+        	// Math.atan2 takes (y, x) and returns the angle between them
+        	enemy.angle = Math.atan2(dy, dx); 
+
+		if (enemy.type === "shooter") {
+			if (enemy.state === "idle") {
+				shootBullet();
+			}
+			else if (enemy.state === "shooting") {
+				updateBullet();
+			}
+		}
 	}
 }
 
@@ -421,11 +445,78 @@ function drawEnemies() {
 	for (let enemy of enemies) {
 		if (enemy.type === "shooter") {
 			ctx.drawImage(images.shooterEnemy, enemy.x, enemy.y, enemy.width, enemy.height);
+			//ctx.drawImage(images.gun, enemy.x, enemy.y + 15, gun.width, gun.height);
+			drawRotatedWeapon(images.gun, enemy.x + enemy.width / 2, enemy.y + 15, gun.width, gun.height, enemy.angle);
+			if (enemy.state === "shooting") {
+				drawRotatedWeapon(images.bullet, enemy.bulletX, enemy.bulletY, bullet.width, bullet.height, enemy.bulletAngle);
+			}
 		} else {
 			ctx.drawImage(images.swordEnemy, enemy.x, enemy.y, enemy.width, enemy.height);
+			//ctx.drawImage(images.sword, enemy.x, enemy.y, sword.width, sword.height);
+			drawRotatedWeapon(images.sword, enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, sword.width, sword.height, enemy.angle);
 		}
 	}
 }
+
+function drawRotatedWeapon(img, x, y, width, height, angle) {
+	ctx.save();               // Save the current state
+	ctx.translate(x, y);      // Move origin to weapon's position
+	ctx.rotate(angle);        // Rotate the canvas
+    
+	// Draw the image centered on the new origin
+	ctx.drawImage(img, -width / 2, -height / 2, width, height); 
+    
+	ctx.restore();            // Restore to previous state
+}
+
+function shootBullet() {
+	for (let enemy of enemies) {
+		if (enemy.type === "shooter") {
+			// Sets the bullets starting position
+			enemy.bulletX = enemy.x;
+			enemy.bulletY = enemy.y;
+
+			// Get the difference
+			let bulletDx = player.x - enemy.bulletX;
+			let bulletDy = player.y - enemy.bulletY;
+			let bulletDistance = Math.sqrt(bulletDx * bulletDx + bulletDy * bulletDy);
+
+			// Normalize and store the direction
+			enemy.bulletVx = (bulletDx / bulletDistance) * bullet.speed;
+			enemy.bulletVy = (bulletDy / bulletDistance) * bullet.speed;
+
+			enemy.angle = Math.atan2(bulletDx, bulletDy); 
+
+			enemy.state = "shooting";
+			enemy.bulletActive = true;
+		}
+	}
+}
+
+function updateBullet() {
+	for (let enemy of enemies) {
+		if (enemy.type === "shooter") {
+			// Move bullet
+			enemy.bulletX += enemy.bulletVx;
+			enemy.bulletY += enemy.bulletVy;
+
+			if (enemy.bulletX < 0 || enemy.bulletY > canvas.width || enemy.bulletY < 0 || enemy.bulletY > canvas.height) {
+				enemy.state = "idle";
+				enemy.bulletActive = false;
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
 
 function updateGame() {
 	oldX = player.x;
@@ -561,6 +652,28 @@ function updateGame() {
 			player.health = player.health - 10;
 		}
 	}
+
+	// Player and enemy bullet detection
+	for (let enemy of enemies) {
+		if (enemy.type !== "shooter") continue;
+		if (!enemy.bulletActive) continue;
+
+		const enemyBulletRect = {
+			x: enemy.bulletX,
+			y: enemy.bulletY,
+			width: bullet.width,
+			height: bullet.height
+		};
+
+		if (rectsOverlap(player, enemyBulletRect)) {
+			player.health -= enemy.damage;
+
+			// deactivate bullet so it doesn't hit again
+			enemy.bulletActive = false;
+			enemy.state = "idle";
+		}
+	}
+
 }
 
 function drawGame() {

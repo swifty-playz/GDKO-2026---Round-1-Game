@@ -29,3 +29,5 @@
 - Can now spawn a bunch of enemies
 - Enemies take damage and can die
 - Corrected damage application
+- Added shooter enemy shooting system
+- Player can now take damage from enemy bullets
