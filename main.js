@@ -34,6 +34,24 @@ let assetsLoaded = 0;
 const totalAssets = Object.keys(ASSETS).length;
 let pressedKeys = new Set();
 let userInteracted = false;
+
+const attackSFX = new Audio("assets/sfx/attackSFX.wav");
+attackSFX.volume = 0.3;
+const damagedSFX = new Audio("assets/sfx/damagedSFX.wav");
+damagedSFX.volume = 0.3;
+const hitSFX = new Audio("assets/sfx/hitSFX.wav");
+hitSFX.volume = 0.3;
+const lightningSFX = new Audio("assets/sfx/lightningSFX.ogg");
+lightningSFX.volume = 0.3;
+const transformSFX = new Audio("assets/sfx/transformSFX.wav");
+transformSFX.volume = 0.3;
+
+const gameMusic = new Audio("assets/music/bgMusic.wav");
+gameMusic.loop = true;
+gameMusic.volume = 0.2;
+
+let currentMusic = null;
+
 // Map
 let borders = [
 	{name: "top", x: 0, y: 0, width: canvas.width, height: 25},
@@ -368,11 +386,13 @@ function updateFireBall() {
 
 function checkFormAttack() {
 	if (player.form === forms[0]) { // 0
+		playSound(attackSFX);
 		shootFireBall(attackWithMouse.x, attackWithMouse.y);
 		attackWithMouse.attack = attacks[0];
 		console.log("Fireball attack!");
 	}
 	else if (player.form === forms[1]) { // 1
+		playSound(lightningSFX);
 		attackWithMouse.attack = attacks[1];
 		lightning.active = true;
 		lightning.timer = lightning.duration;
@@ -380,6 +400,7 @@ function checkFormAttack() {
 		console.log("Electric attack!");
 	}
 	else if (player.form === forms[2]) { // 2
+		playSound(attackSFX);
 		attackWithMouse.attack = attacks[2];
 		block.active = true;
 		block.timer = block.duration;
@@ -607,22 +628,26 @@ function updateGame() {
 		player.x += player.speed;
 	}
 	if (pressedKeys.has('1') && attackWithMouse.state === "able") {
+		playSound(transformSFX);
 		player.form = "fireForm";
 		attackWithMouse.attack = attacks[0];
 		console.log(player.form);
 	}
 	if (pressedKeys.has('2') && attackWithMouse.state === "able") {
+		playSound(transformSFX);
 		player.form = "electricForm";
 		lightning.active = false;
 		attackWithMouse.attack = attacks[1];
 		console.log(player.form);
 	}
 	if (pressedKeys.has('3') && attackWithMouse.state === "able") {
+		playSound(transformSFX);
 		player.form = "materialForm";
 		attackWithMouse.attack = attacks[2];
 		console.log(player.form);
 	}
 	if (pressedKeys.has('e')) {
+		playSound(transformSFX);
 		console.log("Switching planet");
 		if (player.form === "fireForm") {
 			currentPlanet = "burningPlanet";
@@ -667,6 +692,7 @@ function updateGame() {
 	) {
 		player.health -= (fireBall.damage / 10);
 		fireBall.hitEnemies.add(player);
+		playSound(damagedSFX);
 	}
 	if (
 		lightning.active &&
@@ -675,6 +701,7 @@ function updateGame() {
 	) {
 		player.health -= (lightning.damage / 10);
 		lightning.hitEnemies.add(player);
+		playSound(damagedSFX);
 	}
 	if (
 		block.active &&
@@ -683,6 +710,7 @@ function updateGame() {
 	) {
 		player.health -= (block.damage / 10);
 		block.hitEnemies.add(player);
+		playSound(damagedSFX);
 	}
 
 	for (let enemy of enemies) {
@@ -695,6 +723,7 @@ function updateGame() {
 			fireBall.hitEnemies.add(enemy);
 			player.score = player.score + 5;
 			player.health = player.health + 3;
+			playSound(hitSFX);
 		}
 	}
 	for (let enemy of enemies) {
@@ -707,6 +736,7 @@ function updateGame() {
 			lightning.hitEnemies.add(enemy);
 			player.score = player.score + 10;
 			player.health = player.health + 3;
+			playSound(hitSFX);
 		}
 	}
 	for (let enemy of enemies) {
@@ -719,6 +749,7 @@ function updateGame() {
 			block.hitEnemies.add(enemy);
 			player.score = player.score + 15;
 			player.health = player.health + 3;
+			playSound(hitSFX);
 		}
 	}
 
@@ -728,6 +759,8 @@ function updateGame() {
 			player.health = player.health - (enemy.damage - player.defense);
 			player.score = player.score + 1;
 			player.health = player.health + 3;
+			playSound(damagedSFX);
+			playSound(hitSFX);
 		}
 	}
 
@@ -745,6 +778,7 @@ function updateGame() {
 
 		if (rectsOverlap(player, enemyBulletRect)) {
 			player.health -= (enemy.damage - player.defense);
+			playSound(damagedSFX);
 
 			// deactivate bullet so it doesn't hit again
 			enemy.bulletActive = false;
@@ -754,6 +788,7 @@ function updateGame() {
 
 	if (player.health <= 0) {
 		currentScene = SCENES.LOSE;
+		playSound(damagedSFX);
 	}
 }
 
@@ -1025,9 +1060,29 @@ function reset() {
 	//enemySpawnSystem.timer = enemySpawnSystem.delay;
 }
 
+function updateMusic() {
+    if (!userInteracted) return; // don't try to play until the user interacts
+
+    if (Object.values(SCENES).includes(currentScene)) {
+        if (currentMusic !== gameMusic) {
+            if (currentMusic) currentMusic.pause();
+            gameMusic.currentTime = 0;
+            gameMusic.play().catch(e => {}); // safely catch the promise rejection
+            currentMusic = gameMusic;
+        }
+    } else {
+        if (currentMusic) {
+            currentMusic.pause();
+            currentMusic = null;
+        }
+    }
+}
+
 function gameLoop() {
 	// Clears canvas
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	updateMusic();
 
 	if (currentScene === SCENES.MENU) {
 		drawMenu();
